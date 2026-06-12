@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import HUD from './HUD.jsx';
 import TabBar from './TabBar.jsx';
 import WeaponList from './WeaponList.jsx';
@@ -11,10 +11,10 @@ function BuyView({ initialTab = 'comprar', pesetas, gunpowder, spinels, onChange
   const [activeCategory, setActiveCategory] = useState('todo');
   const hoveredWeapon = 'killer7';
 
-  const handleTab = (key) => {
+  const handleTab = useCallback((key) => {
     setActiveTab(key);
     if (onChangeTab) onChangeTab(key);
-  };
+  }, [onChangeTab]);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -36,7 +36,7 @@ function BuyView({ initialTab = 'comprar', pesetas, gunpowder, spinels, onChange
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [activeTab, activeCategory]);
+  }, [activeTab, activeCategory, handleTab]);
 
   const currentTabLabel = shopTabs.find((t) => t.key === activeTab)?.label?.toUpperCase();
 

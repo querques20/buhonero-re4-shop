@@ -1,3 +1,205 @@
+# Aplicaciones Híbridas — Tienda del Buhonero (RE4)
+
+## Integrantes del equipo
+- Facundo Albuquerque
+
+Este repo cubre tres entregas (de la más nueva a la más vieja):
+- **Actividad 09 — React Router + Login + Detalle** (esta entrega)
+- **Actividad 08 — Formulario de Registro**
+- **Actividad 07 — Estructura con React**
+
+---
+
+## Cómo levantar el proyecto
+
+**Requisitos:** Node.js y Docker (Docker se usa para correr MongoDB).
+
+```bash
+# 1) Base de datos: MongoDB en un contenedor (solo la primera vez)
+docker run -d -p 27017:27017 --name mongo-buhonero mongo:7
+#    Si el contenedor ya existe, alcanza con: docker start mongo-buhonero
+
+# 2) Backend (la API) — desde la carpeta backend/
+cd backend
+npm install
+npm run dev          # queda en http://localhost:3000
+
+# 3) Frontend — desde la raíz del proyecto (en otra terminal)
+npm install
+npm run dev          # queda en http://localhost:5173
+```
+
+Después abrí **http://localhost:5173** en el navegador. El backend siembra solo las armas y los personajes en la base la primera vez que arranca.
+
+---
+
+# Actividad 09 — React Router, Login y Detalle
+
+## Qué hice
+
+Instalé y configuré **React Router** para que la app tenga varias páginas con su propia URL,
+un menú de navegación, el **formulario de Login** conectado al backend, y una página de
+**Detalle** que trae un arma desde la API según el id de la URL.
+
+## React Router
+
+- `main.jsx` envuelve toda la app con `<BrowserRouter>`.
+- `src/router/AppRouter.jsx` define las rutas con `<Routes>` / `<Route>`:
+
+| Ruta | Página | Qué muestra |
+|------|--------|-------------|
+| `/` | `Home` | la tienda del Buhonero |
+| `/login` | `Login` | formulario de inicio de sesión |
+| `/register` | `Register` | formulario de registro (Act. 08) |
+| `/detail/:id` | `Detail` | detalle de un arma (id por parámetro de ruta) |
+| `*` | `NotFound` | página 404 |
+
+- `src/components/NavBar.jsx` usa `<NavLink>` para navegar entre páginas (marca la activa).
+
+## Estructura del proyecto (modular)
+
+```
+src/
+├── main.jsx             ← BrowserRouter
+├── App.jsx              ← NavBar + AppRouter
+├── router/
+│   └── AppRouter.jsx    ← definición de las rutas
+├── services/            ← TODO lo que habla con la API
+│   ├── api.js           ← URL base
+│   ├── userService.js   ← registerUser(), loginUser()
+│   └── weaponService.js ← getWeapons(), getWeaponById()
+├── pages/
+│   ├── Home.jsx  Login.jsx  Register.jsx  Detail.jsx  NotFound.jsx
+└── components/
+    ├── NavBar.jsx  InputField.jsx  ... (componentes de la tienda)
+```
+
+Las llamadas a la API viven en `services/`, separadas de las páginas: los componentes no
+arman el `fetch` a mano, llaman a una función del service. Si cambia la API, se toca un solo lugar.
+
+## Formulario de Login
+
+`pages/Login.jsx` tiene los campos que pide el backend (`email` y `password`), con:
+- **Estados** (`useState`): `form` (los datos), `errors` (validaciones), `status` (loading + mensajes).
+- **Validaciones**: email requerido y con formato válido, contraseña requerida.
+- **Fetch POST** a `/api/users/auth` (vía `loginUser`). Si el backend responde ok, guarda el token
+  y entra a la tienda; si no, muestra el mensaje de error ("Email inválido", "Contraseña inválida").
+
+El login se prueba con un usuario previamente registrado (la Act. 08 guarda usuarios en MongoDB).
+
+## Página de Detalle
+
+`pages/Detail.jsx`:
+- Toma el id de la URL con `const { id } = useParams()`.
+- En un `useEffect` hace `fetch` a `/api/weapons/:id` (vía `getWeaponById`) y muestra el arma.
+- Maneja los estados de *cargando / error / arma encontrada*.
+
+Cada arma de la tienda enlaza a su detalle con `<Link to={'/detail/' + id}>`.
+
+## Cómo correr TODO
+
+```bash
+docker start mongo-buhonero      # MongoDB (la 1ª vez: ver backend/README.md)
+cd backend && npm run dev        # API en :3000 (siembra las 33 armas la 1ª vez)
+npm install && npm run dev       # front en :5173 (desde la raíz)
+```
+
+---
+
+# Actividad 08 — Formulario de Registro
+
+## Qué hice
+
+Agregué una pantalla de **Registro** (`src/pages/Register.jsx`) que es lo primero que
+se ve al abrir la app: te registrás y entrás a la tienda. El formulario manda los datos
+a un **backend propio** (Node + Express + MongoDB, la Actividad 06) que guarda el usuario
+en la base con la contraseña **hasheada con bcrypt**.
+
+## Estructura del proyecto
+
+```
+src/
+├── App.jsx              ← decide qué mostrar: Registro o Tienda (según el estado `user`)
+├── pages/
+│   ├── Register.jsx     ← NUEVO: el formulario (estados + validación + fetch POST)
+│   └── Home.jsx         ← la tienda (Actividad 07)
+├── components/
+│   ├── InputField.jsx   ← NUEVO: campo de formulario reutilizable (recibe props)
+│   └── ...              ← HUD, ShopMenu, WeaponRow, etc. (Actividad 07)
+└── data/
+
+backend/                 ← la API de usuarios (Actividad 06) — ver backend/README.md
+```
+
+## El concepto de ESTADOS en React
+
+Un **estado** es un dato que React "recuerda" entre renders y que, cuando cambia, hace
+que el componente se vuelva a dibujar solo. Se crea con el hook `useState`:
+
+```jsx
+const [form, setForm] = useState({ name: '', email: '', password: '' });
+```
+
+`useState` devuelve dos cosas: el **valor actual** (`form`) y una **función para
+actualizarlo** (`setForm`). La regla de oro es **nunca modificar el estado a mano**
+(`form.name = '...'`); siempre se usa la función (`setForm(...)`). Cuando la
+llamás, React re-renderiza el componente con el valor nuevo, así lo que se ve en
+pantalla siempre está sincronizado con el estado.
+
+En el formulario de registro uso **3 estados**, cada uno para una cosa distinta:
+
+| Estado   | Para qué sirve |
+|----------|----------------|
+| `form`   | guardar lo que el usuario escribe en cada input (inputs *controlados*) |
+| `errors` | guardar los mensajes de validación de cada campo |
+| `status` | saber si está cargando y mostrar el mensaje de éxito o error del fetch |
+
+**Inputs controlados:** cada input toma su `value` del estado `form` y, en cada tecla
+(`onChange`), actualiza ese estado. Así el estado es la "única fuente de verdad" de lo
+que hay en el formulario:
+
+```jsx
+<input value={form.email} name="email" onChange={handleChange} />
+```
+
+Cuando cambia un estado (por ejemplo `setStatus({ loading: true })`), React re-dibuja
+y el botón pasa a decir "Registrando..." solo — sin tocar el DOM a mano.
+
+## Validaciones
+
+Antes de mandar el fetch valido en el front: campos obligatorios, formato de email,
+contraseña de mínimo 6 caracteres y que las dos contraseñas coincidan. Si algo falla,
+se guarda en el estado `errors` y se muestra debajo del campo. El backend **también**
+valida (campos obligatorios y email único).
+
+## El fetch (POST a la API)
+
+Al enviar, hago un `POST` a `http://localhost:3000/api/users` con `name`, `email` y
+`password`. Según la respuesta, actualizo `status` para mostrar éxito o error.
+
+## Cómo correr TODO
+
+Hacen falta 3 cosas levantadas (base de datos, backend y frontend):
+
+```bash
+# 1) Base de datos (MongoDB con Docker)
+docker run -d -p 27017:27017 --name mongo-buhonero mongo:7
+
+# 2) Backend (carpeta backend/)
+cd backend
+npm install
+npm run dev          # http://localhost:3000
+
+# 3) Frontend (raíz del proyecto)
+npm install
+npm run dev          # http://localhost:5173
+```
+
+Abrís `http://localhost:5173`, completás el formulario y el usuario queda guardado en
+MongoDB. Para verificarlo: `GET http://localhost:3000/api/users`.
+
+---
+
 # Actividad 07 - Estructura con React
 
 **Materia:** Aplicaciones Híbridas

@@ -1,3 +1,5 @@
+// Catálogo de armas (mock que se siembra en MongoDB la primera vez).
+// Es la misma data que usaba el frontend en data/weapons.js.
 export const weapons = [
   // Pistolas
   { id: 'sg09r',         name: 'SG-09 R',          category: 'pistolas',   price: 0,     slots: 7 },
@@ -50,5 +52,5 @@ export const weapons = [
 
   //Especiales DLC
    { id: 'lanzagranadas', name: 'Lanzagranadas', category: 'especiales', price: 24000, slots: 6 },
-   { id: 'prueba', name: 'Prueba', category: 'especiales', price: 24000, slots: 6 },
+    { id: 'prueba', name: 'Prueba', category: 'especiales', price: 24000, slots: 6 },
 ];

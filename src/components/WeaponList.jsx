@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import WeaponRow from './WeaponRow.jsx';
 
 function WeaponList({ weapons, activeCategory, hoveredId }) {
@@ -8,14 +9,16 @@ function WeaponList({ weapons, activeCategory, hoveredId }) {
   return (
     <ul className="flex flex-col list-none">
       {filtered.map((weapon) => (
-        <WeaponRow
-          key={weapon.id}
-          name={weapon.name}
-          price={weapon.price}
-          slots={weapon.slots}
-          badge={weapon.badge}
-          hovered={weapon.id === hoveredId}
-        />
+        // Cada arma enlaza a su página de detalle (/detail/:id)
+        <Link key={weapon.id} to={`/detail/${weapon.id}`} className="block no-underline">
+          <WeaponRow
+            name={weapon.name}
+            price={weapon.price}
+            slots={weapon.slots}
+            badge={weapon.badge}
+            hovered={weapon.id === hoveredId}
+          />
+        </Link>
       ))}
     </ul>
   );
