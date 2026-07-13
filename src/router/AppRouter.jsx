@@ -7,8 +7,9 @@ import Detail from '../pages/Detail.jsx';
 import NotFound from '../pages/NotFound.jsx';
 import Contacto from '../pages/contacto.jsx';
 import Personajes from '../pages/Personajes.jsx';
-import prueba from '../pages/prueba.jsx';
 import Enemigos from '../pages/Enemigos.jsx';
+import Admin from '../pages/Admin.jsx';
+import PrivateRoute from './PrivateRoute.jsx';
 
 // Definición de todas las rutas de la app.
 function AppRouter() {
@@ -21,7 +22,15 @@ function AppRouter() {
       <Route path="/contacto" element={<Contacto />} />
       <Route path="/personajes" element={<Personajes />} />
       <Route path="/enemigos" element={<Enemigos />} />
-      <Route path="/prueba" element={<prueba />} />
+      {/* El panel de administración: pide login y rol admin */}
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute adminOnly>
+            <Admin />
+          </PrivateRoute>
+        }
+      />
       {/* Cualquier otra ruta -> 404 */}
       <Route path="*" element={<NotFound />} />
     </Routes>

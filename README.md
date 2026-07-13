@@ -3,23 +3,64 @@
 ## Integrantes del equipo
 - Facundo Albuquerque
 
-Este repo cubre tres entregas (de la más nueva a la más vieja):
-- **Actividad 09 — React Router + Login + Detalle** (esta entrega)
+Este repo cubre las entregas de la materia (de la más nueva a la más vieja):
+- **Examen Final — CRUD completo + BackOffice + JWT + deploy** (esta entrega)
+- **Actividad 09 — React Router + Login + Detalle**
 - **Actividad 08 — Formulario de Registro**
 - **Actividad 07 — Estructura con React**
 
 ---
 
-## Cómo levantar el proyecto
+# Examen Final
 
-**Requisitos:** Node.js y Docker (Docker se usa para correr MongoDB).
+## Qué se agregó para el final
+
+Sobre lo que ya venía de las actividades, para el final se completó todo lo que pedía la consigna:
+
+- **CRUD completo de las 4 entidades**: armas, personajes, enemigos y usuarios ahora tienen
+  Create, Read, Update y Delete en la API (antes solo se podían leer).
+- **JWT de verdad**: antes el login firmaba el token y no lo usaba nadie. Ahora hay un
+  middleware (`backend/src/middlewares/authMiddleware.js`) con `verifyToken` (revisa el token
+  del header Authorization) e `isAdmin` (revisa el rol). Todas las rutas de escritura piden
+  ser admin; leer el catálogo sigue siendo público.
+- **Roles**: los usuarios tienen un campo `role` (`usuario` o `admin`). El rol viaja adentro
+  del token. Al registrarte siempre sos usuario común: el rol solo lo puede cambiar un admin
+  desde el panel (así nadie se hace admin solo).
+- **BackOffice**: panel de administración en `/admin` con la estética de la tienda, con tabs
+  para armas / personajes / enemigos / usuarios. Desde ahí se agrega, edita y borra todo.
+- **FrontOffice**: la parte pública de siempre (tienda, personajes, enemigos, detalle de armas).
+- **PrivateRoute**: componente que protege rutas. `/admin` pide sesión iniciada **y** rol admin;
+  si no estás logueado te manda al login, y si sos usuario común te manda a la tienda.
+- **Validaciones** en el backend para todos los endpoints (campos obligatorios, formato de email,
+  contraseña mínima, precios numéricos, ids repetidos) y en los formularios del front.
+- **Usuario admin de prueba**: se crea solo al arrancar el backend →
+  email **admin@buhonero.com**, contraseña **buhonero123**.
+
+## Cómo levantarlo en cualquier compu (sin Docker)
+
+La forma más rápida si no hay Docker ni MongoDB instalados (por ejemplo en la facultad):
+usar una base en **MongoDB Atlas** (la misma del deploy). Solo hace falta Node e internet.
 
 ```bash
-# 1) Base de datos: MongoDB en un contenedor (solo la primera vez)
-docker run -d -p 27017:27017 --name mongo-buhonero mongo:7
-#    Si el contenedor ya existe, alcanza con: docker start mongo-buhonero
+# 1) Backend
+cd backend
+cp .env.example .env      # y en URI_DB pegar la URI de Atlas
+npm install
+npm run dev               # API en http://localhost:3000
 
-# 2) Backend (la API) — desde la carpeta backend/
+# 2) Frontend (otra terminal, desde la raíz)
+npm install
+npm run dev               # http://localhost:5173
+```
+
+## Cómo levantarlo 100% local (con Docker)
+
+```bash
+# 1) MongoDB en un contenedor (solo la primera vez)
+docker run -d -p 27017:27017 --name mongo-buhonero mongo:7
+#    Si el contenedor ya existe: docker start mongo-buhonero
+
+# 2) Backend — desde la carpeta backend/ (el .env con la URI local, ver .env.example)
 cd backend
 npm install
 npm run dev          # queda en http://localhost:3000
@@ -29,7 +70,25 @@ npm install
 npm run dev          # queda en http://localhost:5173
 ```
 
-Después abrí **http://localhost:5173** en el navegador. El backend siembra solo las armas y los personajes en la base la primera vez que arranca.
+La primera vez que arranca, el backend carga solo el catálogo (armas, personajes y enemigos)
+y crea el usuario admin. Después la base queda en manos del panel: lo que edites desde
+`/admin` no se pisa al reiniciar.
+
+## Rutas de la API
+
+| Método | URI | Quién puede |
+|--------|-----|-------------|
+| POST | `/api/users` | público (registro) |
+| POST | `/api/users/auth` | público (login, devuelve el JWT) |
+| GET / PUT / DELETE | `/api/users`, `/api/users/:id` | solo admin |
+| GET | `/api/weapons`, `/api/weapons/:id` | público |
+| POST / PUT / DELETE | `/api/weapons`, `/api/weapons/:id` | solo admin |
+| GET | `/api/personajes`, `/api/personajes/:id` | público |
+| POST / PUT / DELETE | `/api/personajes`, `/api/personajes/:id` | solo admin |
+| GET | `/api/enemigos`, `/api/enemigos/:id` | público |
+| POST / PUT / DELETE | `/api/enemigos`, `/api/enemigos/:id` | solo admin |
+
+Las rutas de admin esperan el token en el header: `Authorization: Bearer <token>`.
 
 ---
 

@@ -4,16 +4,17 @@ import cors from "cors";
 import chalk from "chalk";
 
 import connectDB from "./config/db.js";
-import { seedWeapons, seedPersonajes , seedEnemigos} from "./config/seed.js";
+import { seedWeapons, seedPersonajes, seedEnemigos, seedAdmin } from "./config/seed.js";
 import routerAPI from "./routes/index.js";
 
 dotenv.config();
 
-// Conexión con MongoDB y carga inicial de datos (armas y personajes)
+// Conexión con MongoDB y carga inicial de datos (catálogo + usuario admin)
 connectDB().then(() => {
     seedWeapons();
     seedPersonajes();
     seedEnemigos();
+    seedAdmin();
 });
 
 const PORT = process.env.PORT || 3000;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import InputField from '../components/InputField.jsx';
 import { loginUser } from '../services/userService.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function Login() {
   // --- ESTADOS ---
@@ -10,6 +11,7 @@ function Login() {
   const [status, setStatus] = useState({ loading: false, ok: '', error: '' });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,8 +42,8 @@ function Login() {
       const data = await loginUser(form);
 
       if (data.status === 'ok') {
-        // Login correcto: guardamos el token que devolvió el backend
-        localStorage.setItem('token', data.data);
+        // Login correcto: guardamos la sesión (token + datos del usuario)
+        login(data.data.token, data.data.user);
         setStatus({ loading: false, ok: '¡Bienvenido de nuevo! Entrando a la tienda...', error: '' });
         setTimeout(() => navigate('/'), 1200);
       } else {
