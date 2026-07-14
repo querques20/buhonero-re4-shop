@@ -134,7 +134,9 @@ function Admin() {
   };
 
   return (
-    <div className="relative w-screen min-h-screen pt-24 pb-12 px-6">
+    // el body de la app no scrollea (estilo menú de juego), así que el
+    // panel scrollea por su cuenta para que se vea la lista completa
+    <div className="relative w-screen h-screen overflow-y-auto pt-24 pb-12 px-6">
       <div className="mx-auto max-w-5xl bg-black/60 backdrop-blur-sm border border-[#8a8270]/30 p-8">
         <h1 className="font-['Bebas_Neue'] text-5xl tracking-wider text-[#e8e0d0] leading-none">
           Administración
