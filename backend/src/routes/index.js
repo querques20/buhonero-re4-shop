@@ -5,6 +5,15 @@ import personajeRouter from "./personajeRouter.js";
 import enemigosRouter from "./enemigosRouter.js";
 
 const routerAPI = (app) => {
+    // Índice de la API: entrar a /api muestra qué recursos hay disponibles
+    app.get("/api", (req, res) => {
+        res.json({
+            status: "ok",
+            msg: "API del Buhonero RE4",
+            recursos: ["/api/users", "/api/weapons", "/api/personajes", "/api/enemigos"],
+        });
+    });
+
     app.use("/api/users", userRouter);
     app.use("/api/weapons", weaponsRouter);
     app.use("/api/personajes", personajeRouter);
