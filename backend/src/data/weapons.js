@@ -52,5 +52,4 @@ export const weapons = [
 
   //Especiales DLC
    { id: 'lanzagranadas', name: 'Lanzagranadas', category: 'especiales', price: 24000, slots: 6 },
-    { id: 'prueba', name: 'Prueba', category: 'especiales', price: 24000, slots: 6 },
 ];
