@@ -17,3 +17,6 @@ dist-ssr
 *.sln
 *.sw?
 .omc/
+
+# carpeta local del CLI de Vercel (no va al repo)
+.vercel
