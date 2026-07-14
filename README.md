@@ -13,6 +13,18 @@ Este repo cubre las entregas de la materia (de la más nueva a la más vieja):
 
 # Examen Final
 
+## El sitio en internet
+
+| Qué | URL |
+|-----|-----|
+| **Sitio (FrontOffice + BackOffice)** | https://buhonero-re4-shop.vercel.app |
+| **API REST** | https://buhonero-api.onrender.com/api |
+
+- Front deployado en **Vercel**, API en **Render** y la base en **MongoDB Atlas** (todo free tier).
+- Para entrar al panel de administración: `/admin` con **admin@buhonero.com / buhonero123**.
+- Ojo: la API está en el plan gratuito de Render, así que si nadie la usó por un rato se duerme
+  y el primer request tarda ~30-60 segundos en despertarla. Después responde normal.
+
 ## Qué se agregó para el final
 
 Sobre lo que ya venía de las actividades, para el final se completó todo lo que pedía la consigna:
